@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension-documentation>
+    <configs>
+        <config name="config">
+            <description><![CDATA[Default configuration]]></description>
+            <parameters>
+                <parameter name="serviceName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="otlpEndpoint">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="tracingEnabled">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="name">
+                    <description><![CDATA[The identifier of this element used to reference it in other components]]></description>
+                </parameter>
+                <parameter name="expirationPolicy">
+                    <description><![CDATA[Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.]]></description>
+                </parameter>
+            </parameters>
+        </config>
+    </configs>
+    <connections>
+        <connection name="connection">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="host">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="vpn">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="username">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="password">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="connectRetries">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="reconnectRetries">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="reconnectRetryWaitMs">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="validateCertificate">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="trustStore">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="trustStorePassword">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="reconnection">
+                    <description><![CDATA[When the application is deployed, a connectivity test is performed on all connectors. If set to true, deployment will fail if the test doesn't pass after exhausting the associated reconnection strategy]]></description>
+                </parameter>
+            </parameters>
+        </connection>
+    </connections>
+    <extension name="Solace Tracing">
+        <description><![CDATA[]]></description>
+        <parameters/>
+    </extension>
+    <operations>
+        <operation name="publish">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="destination">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="destinationType">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="body">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="traceparent">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="tracestate">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="spanName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="persistent">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="dmqEligible">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="userProperties">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="config-ref">
+                    <description><![CDATA[The name of the configuration to be used to execute this component]]></description>
+                </parameter>
+                <parameter name="target">
+                    <description><![CDATA[The name of a variable on which the operation's output will be placed]]></description>
+                </parameter>
+                <parameter name="targetValue">
+                    <description><![CDATA[An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable]]></description>
+                </parameter>
+                <parameter name="errorMappings">
+                    <description><![CDATA[Set of error mappings]]></description>
+                </parameter>
+                <parameter name="reconnectionStrategy">
+                    <description><![CDATA[A retry strategy in case of connectivity errors]]></description>
+                </parameter>
+            </parameters>
+        </operation>
+    </operations>
+    <sources>
+        <source name="listener">
+            <description><![CDATA[]]></description>
+            <parameters>
+                <parameter name="queueName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="numberOfConsumers">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="contentType">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="spanName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="serviceName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="shutdownTimeoutMs">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="outputMimeType">
+                    <description><![CDATA[The mime type of the payload that this operation outputs.]]></description>
+                </parameter>
+                <parameter name="primaryNodeOnly">
+                    <description><![CDATA[Whether this source should only be executed on the primary node when runnning in Cluster]]></description>
+                </parameter>
+                <parameter name="config-ref">
+                    <description><![CDATA[The name of the configuration to be used to execute this component]]></description>
+                </parameter>
+                <parameter name="redeliveryPolicy">
+                    <description><![CDATA[Defines a policy for processing the redelivery of the same message]]></description>
+                </parameter>
+                <parameter name="reconnectionStrategy">
+                    <description><![CDATA[A retry strategy in case of connectivity errors]]></description>
+                </parameter>
+            </parameters>
+        </source>
+    </sources>
+    <types>
+        <type name="com.solace.connectors.tracing.api.SolaceMessageAttributes">
+            <description><![CDATA[Attributes of a message received by the listener.
+ traceparent/tracestate identify the listener's receive span: pass them to the publish operation
+ so the next hop becomes its child.]]></description>
+            <parameters>
+                <parameter name="correlationId">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="destination">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="messageId">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="properties">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="queueName">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="redelivered">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="timestamp">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="traceContextSource">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="traceparent">
+                    <description><![CDATA[]]></description>
+                </parameter>
+                <parameter name="tracestate">
+                    <description><![CDATA[]]></description>
+                </parameter>
+            </parameters>
+        </type>
+    </types>
+</extension-documentation>

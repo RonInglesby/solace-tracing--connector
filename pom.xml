@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1.9.0+ compiles for Java 17 and sets minMuleVersion 4.9.0 (Mule 4.12 is fine). -->
+    <parent>
+        <groupId>org.mule.extensions</groupId>
+        <artifactId>mule-modules-parent</artifactId>
+        <version>1.9.0</version>
+    </parent>
+
+    <!-- To publish to Anypoint Exchange, change groupId to your Anypoint organization ID. -->
+    <groupId>com.solace.connectors</groupId>
+    <artifactId>solace-tracing-connector</artifactId>
+    <version>1.0.1</version>
+    <packaging>mule-extension</packaging>
+    <name>Solace Tracing Connector</name>
+    <description>Solace queue listener and publish operation with Solace-native OpenTelemetry context propagation</description>
+
+    <properties>
+        <!-- Solace's compatibility table pairs integration library 1.2 with JMS API 10.17 and OTel instrumentation 2.21 (SDK 1.55). -->
+        <sol-jms.version>10.17.0</sol-jms.version>
+        <solace-otel-jms.version>1.2.0</solace-otel-jms.version>
+        <otel.version>1.55.0</otel.version>
+        <mule-sdk-api.version>0.10.1</mule-sdk-api.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${otel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- @JavaVersionSupport -->
+        <dependency>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
+            <version>${mule-sdk-api.version}</version>
+        </dependency>
+
+        <!-- Solace JMS API (javax) and the Solace OpenTelemetry JMS integration (getter/setter) -->
+        <dependency>
+            <groupId>com.solacesystems</groupId>
+            <artifactId>sol-jms</artifactId>
+            <version>${sol-jms.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>javax.jms-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.solace</groupId>
+            <artifactId>solace-opentelemetry-jms-integration</artifactId>
+            <version>${solace-otel-jms.version}</version>
+        </dependency>
+
+        <!-- OpenTelemetry, versions aligned by the BOM -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.13</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+        </repository>
+        <repository>
+            <id>mulesoft-public</id>
+            <name>MuleSoft Public Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-plugin-releases</id>
+            <name>MuleSoft Plugin Releases Repository</name>
+            <url>https://repository.mulesoft.org/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

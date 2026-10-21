@@ -1,0 +1,3 @@
+com.solace.connectors.tracing.api
+com.solace.connectors.tracing.internal
+com.solace.connectors.tracing.internal.source
