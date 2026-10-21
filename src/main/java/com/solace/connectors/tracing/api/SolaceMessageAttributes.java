@@ -5,20 +5,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Attributes of a message received by the listener.
- * traceparent/tracestate identify the listener's receive span: pass them to the publish operation
- * so the next hop becomes its child.
+ * Attributes of a received message (listener, Consume and Publish consume).
+ * traceparent/tracestate identify the receive span: pass them to Publish so the next hop becomes its child.
  */
 public class SolaceMessageAttributes implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private String messageId;
     private String correlationId;
-    private String queueName;
     private String destination;
+    private String replyTo;
     private boolean redelivered;
     private long timestamp;
+    private int priority;
+    private String ackId;
     private String traceparent;
     private String tracestate;
     private String traceContextSource;
@@ -33,11 +34,13 @@ public class SolaceMessageAttributes implements Serializable {
     public String getCorrelationId() { return correlationId; }
     public void setCorrelationId(String correlationId) { this.correlationId = correlationId; }
 
-    public String getQueueName() { return queueName; }
-    public void setQueueName(String queueName) { this.queueName = queueName; }
-
+    /** Queue or topic the message was received from. */
     public String getDestination() { return destination; }
     public void setDestination(String destination) { this.destination = destination; }
+
+    /** JMSReplyTo of the message, if any. */
+    public String getReplyTo() { return replyTo; }
+    public void setReplyTo(String replyTo) { this.replyTo = replyTo; }
 
     public boolean isRedelivered() { return redelivered; }
     public void setRedelivered(boolean redelivered) { this.redelivered = redelivered; }
@@ -45,7 +48,14 @@ public class SolaceMessageAttributes implements Serializable {
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 
-    /** traceparent of the listener's receive span. */
+    public int getPriority() { return priority; }
+    public void setPriority(int priority) { this.priority = priority; }
+
+    /** Set in MANUAL ack mode: pass to the Ack or Recover session operation. */
+    public String getAckId() { return ackId; }
+    public void setAckId(String ackId) { this.ackId = ackId; }
+
+    /** traceparent of the receive span. */
     public String getTraceparent() { return traceparent; }
     public void setTraceparent(String traceparent) { this.traceparent = traceparent; }
 
@@ -62,8 +72,8 @@ public class SolaceMessageAttributes implements Serializable {
 
     @Override
     public String toString() {
-        return "SolaceMessageAttributes{messageId=" + messageId + ", queueName=" + queueName
-                + ", destination=" + destination + ", redelivered=" + redelivered
+        return "SolaceMessageAttributes{messageId=" + messageId + ", destination=" + destination
+                + ", correlationId=" + correlationId + ", redelivered=" + redelivered + ", ackId=" + ackId
                 + ", traceparent=" + traceparent + ", traceContextSource=" + traceContextSource + "}";
     }
 }

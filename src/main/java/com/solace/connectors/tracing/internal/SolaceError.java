@@ -5,10 +5,13 @@ import java.util.Optional;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 import org.mule.runtime.extension.api.error.MuleErrors;
 
-/** Error types raised by the connector: SOLACE-TRACING:PUBLISH and SOLACE-TRACING:CONNECTIVITY. */
+/** Error types: SOLACE-TRACING:PUBLISH, :CONSUMING, :TIMEOUT, :ACK and :CONNECTIVITY. */
 public enum SolaceError implements ErrorTypeDefinition<SolaceError> {
 
     PUBLISH,
+    CONSUMING,
+    TIMEOUT,
+    ACK,
     CONNECTIVITY(MuleErrors.CONNECTIVITY);
 
     private ErrorTypeDefinition<? extends Enum<?>> parent;

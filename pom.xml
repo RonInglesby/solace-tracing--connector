@@ -14,7 +14,7 @@
     <!-- To publish to Anypoint Exchange, change groupId to your Anypoint organization ID. -->
     <groupId>com.solace.connectors</groupId>
     <artifactId>solace-tracing-connector</artifactId>
-    <version>1.0.1</version>
+    <version>2.0.0</version>
     <packaging>mule-extension</packaging>
     <name>Solace Tracing Connector</name>
     <description>Solace queue listener and publish operation with Solace-native OpenTelemetry context propagation</description>

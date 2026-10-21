@@ -3,12 +3,26 @@ package com.solace.connectors.tracing.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+
+import com.solace.opentelemetry.javaagent.jms.SolaceJmsW3CTextMapGetter;
+import com.solace.opentelemetry.javaagent.jms.SolaceJmsW3CTextMapSetter;
+
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapSetter;
 
-/** W3C trace-context helpers shared by the listener and the publish operation. */
+/**
+ * Trace-context helpers shared by every component, so the hierarchy is built the same way everywhere:
+ * outbound messages carry the Solace-native context (read and updated by the broker) plus traceparent/tracestate
+ * user properties; inbound messages are parented on the Solace-native context, falling back to the properties.
+ */
 public final class Tracing {
 
     public static final W3CTraceContextPropagator PROPAGATOR = W3CTraceContextPropagator.getInstance();
@@ -34,6 +48,21 @@ public final class Tracing {
         }
     };
 
+    /** Parent context read from a received message, and where it came from. */
+    public static final class Extracted {
+        public final Context context;
+        public final String source;
+
+        Extracted(Context context, String source) {
+            this.context = context;
+            this.source = source;
+        }
+
+        public boolean isValid() {
+            return Span.fromContext(context).getSpanContext().isValid();
+        }
+    }
+
     private Tracing() {
     }
 
@@ -50,10 +79,51 @@ public final class Tracing {
         return PROPAGATOR.extract(Context.root(), carrier, MAP_GETTER);
     }
 
+    /** Parent context for a received message: the broker-updated Solace-native context, else our user properties. */
+    public static Extracted extract(Message message) {
+        Context solace = PROPAGATOR.extract(Context.root(), message, new SolaceJmsW3CTextMapGetter());
+        if (Span.fromContext(solace).getSpanContext().isValid()) {
+            return new Extracted(solace, "solace");
+        }
+        Context fallback = extract(stringProperty(message, "traceparent"), stringProperty(message, "tracestate"));
+        return new Extracted(fallback,
+                Span.fromContext(fallback).getSpanContext().isValid() ? "user-property" : "none");
+    }
+
     /** W3C strings ("traceparent", "tracestate") for the given context. */
     public static Map<String, String> inject(Context context) {
         Map<String, String> carrier = new HashMap<String, String>();
         PROPAGATOR.inject(context, carrier, MAP_SETTER);
         return carrier;
+    }
+
+    /** Puts the context on an outbound message both ways; returns the W3C strings written. */
+    public static Map<String, String> inject(Context context, Message message) throws JMSException {
+        Map<String, String> out = inject(context);
+        for (Map.Entry<String, String> entry : out.entrySet()) {
+            message.setStringProperty(entry.getKey(), entry.getValue());
+        }
+        PROPAGATOR.inject(context, message, new SolaceJmsW3CTextMapSetter());
+        return out;
+    }
+
+    /** Starts a messaging span with the standard attributes. */
+    public static Span startSpan(Tracer tracer, String name, Context parent, SpanKind kind,
+                                 String destination, String operation) {
+        return tracer.spanBuilder(name)
+                .setParent(parent)
+                .setSpanKind(kind)
+                .setAttribute(AttributeKey.stringKey("messaging.system"), "solace")
+                .setAttribute(AttributeKey.stringKey("messaging.operation"), operation)
+                .setAttribute(AttributeKey.stringKey("messaging.destination.name"), destination == null ? "" : destination)
+                .startSpan();
+    }
+
+    private static String stringProperty(Message message, String name) {
+        try {
+            return message.getStringProperty(name);
+        } catch (JMSException e) {
+            return null;
+        }
     }
 }

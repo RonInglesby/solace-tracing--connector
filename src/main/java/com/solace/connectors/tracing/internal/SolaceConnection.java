@@ -25,6 +25,7 @@ public class SolaceConnection {
     private final ConcurrentLinkedQueue<PublisherSession> idlePublishers = new ConcurrentLinkedQueue<PublisherSession>();
     private final List<ExceptionListener> listeners = new CopyOnWriteArrayList<ExceptionListener>();
     private volatile boolean valid = true;
+    private volatile boolean started;
 
     public SolaceConnection(Connection connection) throws JMSException {
         this.connection = connection;
@@ -44,8 +45,12 @@ public class SolaceConnection {
         });
     }
 
-    public void start() throws JMSException {
-        connection.start();
+    /** Starts delivery of inbound messages. Needed before any receive; safe to call more than once. */
+    public synchronized void start() throws JMSException {
+        if (!started) {
+            connection.start();
+            started = true;
+        }
     }
 
     public Session createSession(int acknowledgeMode) throws JMSException {
@@ -64,7 +69,7 @@ public class SolaceConnection {
         valid = false;
     }
 
-    PublisherSession borrowPublisher() throws JMSException {
+    public PublisherSession borrowPublisher() throws JMSException {
         PublisherSession publisher = idlePublishers.poll();
         if (publisher != null) {
             return publisher;
@@ -74,7 +79,7 @@ public class SolaceConnection {
         return new PublisherSession(session, session.createProducer(null));
     }
 
-    void returnPublisher(PublisherSession publisher) {
+    public void returnPublisher(PublisherSession publisher) {
         if (valid) {
             idlePublishers.offer(publisher);
         } else {
@@ -82,7 +87,7 @@ public class SolaceConnection {
         }
     }
 
-    void discardPublisher(PublisherSession publisher) {
+    public void discardPublisher(PublisherSession publisher) {
         publisher.close();
     }
 
@@ -99,9 +104,10 @@ public class SolaceConnection {
         }
     }
 
-    static final class PublisherSession {
-        final Session session;
-        final MessageProducer producer;
+    /** A pooled session with an anonymous producer. */
+    public static final class PublisherSession {
+        public final Session session;
+        public final MessageProducer producer;
 
         PublisherSession(Session session, MessageProducer producer) {
             this.session = session;
