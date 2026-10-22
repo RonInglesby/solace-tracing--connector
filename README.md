@@ -43,10 +43,6 @@ For CloudHub, Runtime Fabric, or team use, publish it to Anypoint Exchange:
 1. Set the pom `groupId` to your Anypoint organization ID.
 2. Run `mvn deploy`.
 
-### Upgrading from 1.0.1
-
-The listener's `queueName` attribute is now `destination`. Everything else is compatible. The `mule-app/` folder has the order flows already updated.
-
 ## How the trace hierarchy is kept
 
 | Step | Span | Parent |
