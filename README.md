@@ -1,4 +1,4 @@
-# Solace Tracing Connector for Mule 4 (2.0.0)
+# Solace Tracing Connector for Mule 4 (2.0.1)
 
 The Solace Tracing connector is a Mule 4 connector that covers the same jobs as the MuleSoft JMS connector, for a Solace broker. Every component keeps the OpenTelemetry trace hierarchy intact across the broker:
 
@@ -33,7 +33,7 @@ App dependency:
 <dependency>
     <groupId>com.solace.connectors</groupId>
     <artifactId>solace-tracing-connector</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <classifier>mule-plugin</classifier>
 </dependency>
 ```
@@ -90,6 +90,12 @@ Connection settings:
 - `host`, `vpn`, `username` and `password`.
 - `connectRetries` (3), `reconnectRetries` (20; -1 means forever) and `reconnectRetryWaitMs` (3000) — retries made by the Solace API itself before Mule's reconnection takes over.
 - `validateCertificate` (true), `trustStore` and `trustStorePassword` — TLS settings for `tcps://`.
+- **Flow control** (a "Flow control" tab in Studio; leave empty for the Solace API default):
+  - `receiveWindowSize` — the guaranteed message receive window, 1–255, default 18. JCSMP calls it `SUB_ACK_WINDOW_SIZE`; the Solace JMS setter is `setReceiveADWindowSize`.
+  - `receiveAckThreshold` — the percentage of the window received before a transport ack is sent, 1–75, default 60. JCSMP: `SUB_ACK_THRESHOLD`.
+  - `receiveAckTimerMs` — the longest wait before a transport ack is sent, 20–1500 ms, default 1000. JCSMP: `SUB_ACK_TIME`.
+
+  The effective window is also capped by the queue's **Max Delivered Unacked Msgs Per Flow**. Out-of-range values stop the connection with a clear error.
 
 ### listener
 
